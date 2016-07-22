@@ -107,7 +107,7 @@ func ScanPorts(host string, pr *poke.PortRange) map[uint64]bool {
 func scanWorker(host string, jobpipe chan uint64, respipe chan *poke.ScanResult) {
 	for job := <-jobpipe; ; job = <-jobpipe {
 		var sr poke.Scanner
-		sr = poke.TcpConnectScanner{host, job}
+		sr = poke.TcpSynScanner{host, job}
 		respipe <- sr.Scan()
 	}
 }
