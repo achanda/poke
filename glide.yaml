@@ -1,0 +1,3 @@
+package: github.com/achanda/poke
+import:
+- package: github.com/achanda/go-services
