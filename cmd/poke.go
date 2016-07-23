@@ -42,6 +42,7 @@ func main() {
 	}
 	// Format results
 	results := ScanPorts(host, prs)
+	//fmt.Printf("%v", results)
 	for port, success := range results {
 		if success {
 			if portmap != nil {
@@ -84,7 +85,7 @@ func ScanPorts(host string, pr *poke.PortRange) map[uint64]bool {
 
 	// Start workers
 	for worker := 0; worker < MAX_WORKERS; worker++ {
-		go scanWorker(host, jobpipe, respipe)
+		go scanWorker(host, jobpipe, respipe) //, conn)
 	}
 
 	// Seed w/ jobs
@@ -107,7 +108,7 @@ func ScanPorts(host string, pr *poke.PortRange) map[uint64]bool {
 func scanWorker(host string, jobpipe chan uint64, respipe chan *poke.ScanResult) {
 	for job := <-jobpipe; ; job = <-jobpipe {
 		var sr poke.Scanner
-		sr = poke.TcpConnectScanner{host, job}
+		sr = poke.NewTcpSynScanner(host, job)
 		respipe <- sr.Scan()
 	}
 }
