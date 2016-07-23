@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/achanda/go-services"
 	"github.com/achanda/poke"
+	"github.com/achanda/poke/utils"
 	"log"
 	"net"
 	"os"
@@ -84,11 +85,12 @@ func ScanPorts(host string, pr *poke.PortRange) map[uint64]bool {
 	jobpipe := make(chan uint64, num_ports)
 	respipe := make(chan *poke.ScanResult, num_ports)
 
-	ipa, err := net.ResolveIPAddr("ip", host)
+	saddr, err := utils.GetLocalIP(host)
 	if err != nil {
-		panic("Could not resolve host")
+		panic(err)
 	}
-	conn, err := net.ListenIP("ip4:tcp", ipa)
+	fmt.Printf("%v\n", saddr)
+	conn, err := net.ListenIP("ip4:tcp", &saddr)
 	if err != nil {
 		panic(err)
 	}

@@ -2,6 +2,7 @@ package poke
 
 import (
 	"fmt"
+	"github.com/achanda/poke/utils"
 	"github.com/google/gopacket"
 	"github.com/google/gopacket/layers"
 	"net"
@@ -10,7 +11,6 @@ import (
 type TcpSynScanner struct {
 	Host string
 	Port uint64
-
 	Conn net.IPConn
 }
 
@@ -41,8 +41,12 @@ func (tcpcs TcpSynScanner) Scan() *ScanResult {
 	//return nil
 	//	return &ScanResult{Port: 1234, Success: true, Err: nil}
 	//}
+	saddr, err := utils.GetLocalIP(tcpcs.Host)
+	if err != nil {
+		panic(err)
+	}
 	ip := &layers.IPv4{
-		//SrcIP:    sip,
+		SrcIP:    saddr.IP,
 		DstIP:    dip,
 		Protocol: layers.IPProtocolTCP,
 	}
@@ -51,7 +55,7 @@ func (tcpcs TcpSynScanner) Scan() *ScanResult {
 		DstPort: layers.TCPPort(tcpcs.Port),
 		SYN:     true,
 	}
-	fmt.Printf("Dst: %v\n", tcpcs.Port)
+	//fmt.Printf("Dst: %v\n", tcpcs.Port)
 	tcp.SetNetworkLayerForChecksum(ip)
 	buf := gopacket.NewSerializeBuffer()
 	opts := gopacket.SerializeOptions{
@@ -59,8 +63,8 @@ func (tcpcs TcpSynScanner) Scan() *ScanResult {
 		FixLengths:       true,
 	}
 	if err := gopacket.SerializeLayers(buf, opts, tcp); err != nil {
-		//fmt.Printf("%v", err)
-		return &ScanResult{Port: 1234, Success: true, Err: nil}
+		fmt.Printf("%v", err)
+		//return &ScanResult{Port: 1234, Success: true, Err: nil}
 	}
 	tcpcs.Conn.Write(buf.Bytes())
 
@@ -77,17 +81,16 @@ func (tcpcs TcpSynScanner) Scan() *ScanResult {
 		fmt.Printf("Failed to code packet %v\n", err)
 	}
 	for _, layerType := range decoded {
-		if layerType == layers.LayerTypeTCP {
-			//if rtcp.SrcPort == 22 {
-			//fmt.Printf("%v", rtcp.SYN && rtcp.ACK || rtcp.RST)
-			fmt.Printf("Src %v ", rtcp.SrcPort)
-			fmt.Printf("Dst %v ", rtcp.DstPort)
-			fmt.Printf("Reset %v ", rtcp.RST)
-			fmt.Printf("Syn %v ", rtcp.SYN)
-			fmt.Printf("Ack %v\n", rtcp.ACK)
-			//}
-			return &ScanResult{Port: uint64(rtcp.SrcPort), Success: (rtcp.SYN && rtcp.ACK || rtcp.RST), Err: nil}
-		}
+		fmt.Printf("%v", layerType)
+		//if layerType == layers.LayerTypeTCP {
+		//fmt.Printf("Src %v ", rtcp.SrcPort)
+		//fmt.Printf("Dst %v ", rtcp.DstPort)
+		fmt.Printf("Reset %v ", rtcp.RST)
+		fmt.Printf("Syn %v ", rtcp.SYN)
+		fmt.Printf("Ack %v\n", rtcp.ACK)
+		return &ScanResult{Port: uint64(tcpcs.Port), Success: (rtcp.ACK || rtcp.RST), Err: nil}
+		//}
 	}
-	return &ScanResult{Port: 1234, Success: true, Err: nil}
+	//return &ScanResult{Port: 1234, Success: true, Err: nil}
+	return nil
 }
