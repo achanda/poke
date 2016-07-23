@@ -10,41 +10,48 @@ import (
 type TcpSynScanner struct {
 	Host string
 	Port uint64
+
+	Conn net.IPConn
 }
 
-func newTcpSynScanner(host string, port uint64) Scanner {
-	return TcpSynScanner{host, port}
+func newTcpSynScanner(host string, port uint64, conn net.IPConn) Scanner {
+	return TcpSynScanner{host, port, conn}
 }
 
 func (tcpcs TcpSynScanner) Scan() *ScanResult {
-	ipa, err := net.ResolveIPAddr("ip", tcpcs.Host)
-	if err != nil {
-		return nil
-	}
-	conn, err := net.ListenIP("ip:tcp", ipa)
-	if err != nil {
-		return nil
-	}
-	defer conn.Close()
+	//ipa, err := net.ResolveIPAddr("ip", tcpcs.Host)
+	//if err != nil {
+	//	return nil
+	//return &ScanResult{Port: 1234, Success: true, Err: nil}
+	//}
+	//fmt.Println(ipa)
+	//conn, err := net.ListenIP("ip:tcp", ipa)
+	//if err != nil {
+	//	panic(err)
+	//return nil
+	//return &ScanResult{Port: 1234, Success: true, Err: nil}
+	//}
+	//defer conn.Close()
 
-	sp := random(1024, 2024)
+	//sp := random(1024, 2024)
 	dip := net.ParseIP(tcpcs.Host)
 	//sip, err := getIP(dip)
 	//fmt.Printf("%v", sip)
-	if err != nil {
-		return nil
-	}
+	//if err != nil {
+	//return nil
+	//	return &ScanResult{Port: 1234, Success: true, Err: nil}
+	//}
 	ip := &layers.IPv4{
 		//SrcIP:    sip,
 		DstIP:    dip,
 		Protocol: layers.IPProtocolTCP,
 	}
 	tcp := &layers.TCP{
-		SrcPort: layers.TCPPort(sp),
+		//SrcPort: layers.TCPPort(sp),
 		DstPort: layers.TCPPort(tcpcs.Port),
 		SYN:     true,
 	}
-	fmt.Printf("Src: %v Dst: %v\n", sp, tcpcs.Port)
+	fmt.Printf("Dst: %v\n", tcpcs.Port)
 	tcp.SetNetworkLayerForChecksum(ip)
 	buf := gopacket.NewSerializeBuffer()
 	opts := gopacket.SerializeOptions{
@@ -53,14 +60,15 @@ func (tcpcs TcpSynScanner) Scan() *ScanResult {
 	}
 	if err := gopacket.SerializeLayers(buf, opts, tcp); err != nil {
 		//fmt.Printf("%v", err)
+		return &ScanResult{Port: 1234, Success: true, Err: nil}
 	}
-	conn.Write(buf.Bytes())
+	tcpcs.Conn.Write(buf.Bytes())
 
 	var rtcp layers.TCP
 	var payload gopacket.Payload
 	data := make([]byte, 4096)
 	parser := gopacket.NewDecodingLayerParser(layers.LayerTypeTCP, &rtcp, &payload)
-	_, _, err1 := conn.ReadFromIP(data)
+	_, _, err1 := tcpcs.Conn.ReadFromIP(data)
 	if err1 != nil {
 		fmt.Printf("%v", err1)
 	}
@@ -81,5 +89,5 @@ func (tcpcs TcpSynScanner) Scan() *ScanResult {
 			return &ScanResult{Port: uint64(rtcp.SrcPort), Success: (rtcp.SYN && rtcp.ACK || rtcp.RST), Err: nil}
 		}
 	}
-	return nil
+	return &ScanResult{Port: 1234, Success: true, Err: nil}
 }
