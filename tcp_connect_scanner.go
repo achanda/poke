@@ -10,7 +10,7 @@ type TcpConnectScanner struct {
 	Port uint64
 }
 
-func newTcpConnectScanner(host string, port uint64) Scanner {
+func NewTcpConnectScanner(host string, port uint64) Scanner {
 	return TcpConnectScanner{host, port}
 }
 
