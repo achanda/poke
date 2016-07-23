@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"github.com/achanda/go-services"
 	"github.com/achanda/poke"
-	"github.com/achanda/poke/utils"
+	//"github.com/achanda/poke/utils"
 	"log"
-	"net"
+	//"net"
 	"os"
 	"strconv"
 	"strings"
@@ -85,7 +85,7 @@ func ScanPorts(host string, pr *poke.PortRange) map[uint64]bool {
 	jobpipe := make(chan uint64, num_ports)
 	respipe := make(chan *poke.ScanResult, num_ports)
 
-	saddr, err := utils.GetLocalIP(host)
+	/*saddr, err := utils.GetLocalIP(host)
 	if err != nil {
 		panic(err)
 	}
@@ -93,11 +93,15 @@ func ScanPorts(host string, pr *poke.PortRange) map[uint64]bool {
 	conn, err := net.ListenIP("ip4:tcp", &saddr)
 	if err != nil {
 		panic(err)
-	}
+	}*/
+	//conn, err := net.ListenPacket("ip4:tcp", "0.0.0.0")
+	//if err != nil {
+	//	panic(err)
+	//}
 
 	// Start workers
 	for worker := 0; worker < MAX_WORKERS; worker++ {
-		go scanWorker(host, jobpipe, respipe, conn)
+		go scanWorker(host, jobpipe, respipe) //, conn)
 	}
 
 	// Seed w/ jobs
@@ -117,11 +121,11 @@ func ScanPorts(host string, pr *poke.PortRange) map[uint64]bool {
 
 // Worker function; pull from job queue forever and return results on result
 // queue
-func scanWorker(host string, jobpipe chan uint64, respipe chan *poke.ScanResult, conn *net.IPConn) {
-	defer conn.Close()
+func scanWorker(host string, jobpipe chan uint64, respipe chan *poke.ScanResult) {
+	//defer conn.Close()
 	for job := <-jobpipe; ; job = <-jobpipe {
 		var sr poke.Scanner
-		sr = poke.TcpSynScanner{host, job, *conn}
+		sr = poke.NewTcpSynScanner(host, job)
 		respipe <- sr.Scan()
 	}
 }
