@@ -62,7 +62,6 @@ func main() {
 		fmt.Printf("did not find a services file")
 	}
 	// Format results
-	results := ScanPorts(host, prs, scanner_type, ipVer)
 	proto := ""
 	if scanner_type == "c" || scanner_type == "s" {
 		proto = "tcp"
