@@ -33,3 +33,15 @@ func IsIPv4(host string) bool {
 	}
 	return false
 }
+
+func ParseHost(host string) (net.IP, error) {
+	addr := net.ParseIP(host)
+	if addr == nil {
+		ipa, err := net.ResolveIPAddr("ip", host)
+		if err != nil {
+			return net.IP{}, err
+		}
+		return ipa.IP, nil
+	}
+	return addr, nil
+}

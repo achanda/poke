@@ -36,3 +36,33 @@ func TestIsIPv4(t *testing.T) {
 		t.Fatalf("%v is not a valid IPv4", ip2)
 	}
 }
+
+func TestParseHost(t *testing.T) {
+	host1 := "google.com"
+	host2 := "106.10.138.240"
+	host3 := "2604:a880:1:20::9f9:9001"
+
+	ip1, err := ParseHost(host1)
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	if !reflect.DeepEqual(ip1, net.ParseIP("172.217.4.174")) {
+		t.Fatalf("%v should resolve to a valid IPv4 address", host1)
+	}
+
+	ip2, err := ParseHost(host2)
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	if !reflect.DeepEqual(ip2, net.ParseIP(host2)) {
+		t.Fatalf("%v should be a valid IPv4 address", host2)
+	}
+
+	ip3, err := ParseHost(host3)
+	if err != nil {
+		t.Fatalf("%v", err)
+	}
+	if !reflect.DeepEqual(ip3, net.ParseIP(host3)) {
+		t.Fatalf("%v should be a valid IPv6 address", host3)
+	}
+}
