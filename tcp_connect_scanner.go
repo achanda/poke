@@ -16,11 +16,10 @@ func NewTcpConnectScanner(host string, port uint64, ipver bool) Scanner {
 }
 
 func (tcpcs TcpConnectScanner) Scan() *ScanResult {
-	var proto string
+	proto := "tcp6"
 	if tcpcs.Isv4 {
 		proto = "tcp4"
 	}
-	proto = "tcp6"
 	conn, err := net.Dial(proto, net.JoinHostPort(tcpcs.Host, strconv.FormatUint(tcpcs.Port, 10)))
 	result := ScanResult{
 		Port:    tcpcs.Port,
