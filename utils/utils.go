@@ -34,14 +34,46 @@ func IsIPv4(host string) bool {
 	return false
 }
 
-func ParseHost(host string) (net.IP, error) {
+func getIPs(cidr string) ([]string, error) {
+	var hosts []string
+	ip, ipnet, err := net.ParseCIDR(cidr)
+	if err != nil {
+		return nil, err
+	}
+	for ip := ip.Mask(ipnet.Mask); ipnet.Contains(ip); increment(ip) {
+		hosts = append(hosts, ip.String())
+	}
+	// Remove network and broadcast
+	return hosts[1 : len(hosts)-1], nil
+}
+
+func ParseHost(host string) ([]string, error) {
+	// Check if we got a CIDR
+	ips, err := getIPs(host)
+	if err == nil {
+		return ips, err
+	}
+
+	var hosts []string
 	addr := net.ParseIP(host)
 	if addr == nil {
 		ipa, err := net.ResolveIPAddr("ip", host)
 		if err != nil {
-			return net.IP{}, err
+			hosts = append(hosts, net.IP{}.String())
+			return hosts, err
 		}
-		return ipa.IP, nil
+		hosts = append(hosts, ipa.IP.String())
+		return hosts, nil
 	}
-	return addr, nil
+	hosts = append(hosts, addr.String())
+	return hosts, nil
+}
+
+func increment(ip net.IP) {
+	for j := len(ip) - 1; j >= 0; j-- {
+		ip[j]++
+		if ip[j] > 0 {
+			break
+		}
+	}
 }

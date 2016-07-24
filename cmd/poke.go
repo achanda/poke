@@ -18,9 +18,11 @@ const MAX_WORKERS = 100
 // Run the port scanner
 func main() {
 	var host, port_range_arg, scanner_type string
+	var ipver bool
 	flag.StringVar(&host, "host", "", "host to scan")
 	flag.StringVar(&port_range_arg, "ports", "", "ports to scan")
 	flag.StringVar(&scanner_type, "scanner", "", "scanner type to use")
+	flag.BoolVar(&ipver, "v4", true, "will we use IPv4")
 
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
@@ -39,35 +41,44 @@ func main() {
 		flag.Usage()
 		os.Exit(1)
 	}
+
+	hosts, err := utils.ParseHost(host)
+	if err != nil {
+		fmt.Printf("Could not parse the host param %v", host)
+		os.Exit(2)
+	}
+
+	if len(hosts) == 1 {
+		ipver = utils.IsIPv4(host)
+	}
+
 	prs, err := parsePorts(port_range_arg)
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	// For now we assume anything not v4 is v6
-	ipVer := utils.IsIPv4(host)
 
 	portmap, err := services.GetServices()
 	if err != nil {
 		fmt.Printf("did not find a services file")
 	}
 	// Format results
-	results := ScanPorts(host, prs, scanner_type, ipVer)
 	proto := ""
 	if scanner_type == "c" || scanner_type == "s" {
 		proto = "tcp"
 	} else {
 		proto = "udp"
 	}
-	//fmt.Printf("%v", results)
-	for port, success := range results {
-		if success {
-			if portmap != nil {
-				servname := portmap[uint16(port)].Name
-				if servname != "" {
-					fmt.Printf("%v/%v open %v\n", port, proto, portmap[uint16(port)].Name)
-				} else {
-					fmt.Printf("%v/%v: open\n", port, proto)
+	for _, host := range hosts {
+		results := ScanPorts(host, prs, scanner_type, ipver)
+		for port, success := range results {
+			if success {
+				if portmap != nil {
+					servname := portmap[uint16(port)].Name
+					if servname != "" {
+						fmt.Printf("%v/%v open %v\n", port, proto, portmap[uint16(port)].Name)
+					} else {
+						fmt.Printf("%v/%v: open\n", port, proto)
+					}
 				}
 			}
 		}
