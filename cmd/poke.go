@@ -49,7 +49,7 @@ func main() {
 	}
 
 	if len(hosts) == 1 {
-		ipver = utils.IsIPv4(host)
+		ipver = utils.IsIPv4(hosts[0])
 	}
 
 	prs, err := parsePorts(port_range_arg)
