@@ -121,7 +121,7 @@ func scanWorker(host string, jobpipe chan uint64, respipe chan *poke.ScanResult,
 		var sr poke.Scanner
 		switch scanner_type {
 		case "s":
-			sr = poke.NewTcpSynScanner(host, job)
+			sr = poke.NewTcpSynScanner(host, job, ipVer)
 		case "c":
 			sr = poke.NewTcpConnectScanner(host, job, ipVer)
 		}
