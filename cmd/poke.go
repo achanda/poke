@@ -53,15 +53,21 @@ func main() {
 	}
 	// Format results
 	results := ScanPorts(host, prs, scanner_type, ipVer)
+	proto := ""
+	if scanner_type == "c" || scanner_type == "s" {
+		proto = "tcp"
+	} else {
+		proto = "udp"
+	}
 	//fmt.Printf("%v", results)
 	for port, success := range results {
 		if success {
 			if portmap != nil {
 				servname := portmap[uint16(port)].Name
 				if servname != "" {
-					fmt.Printf("%v: OPEN Service: %v\n", port, portmap[uint16(port)].Name)
+					fmt.Printf("%v/%v open %v\n", port, proto, portmap[uint16(port)].Name)
 				} else {
-					fmt.Printf("%v: OPEN\n", port)
+					fmt.Printf("%v/%v: open\n", port, proto)
 				}
 			}
 		}
@@ -94,6 +100,7 @@ func ScanPorts(host string, pr *poke.PortRange, scanner_type string, ipVer bool)
 	jobpipe := make(chan uint64, num_ports)
 	respipe := make(chan *poke.ScanResult, num_ports)
 
+	fmt.Printf("Scanning %v\n", host)
 	// Start workers
 	for worker := 0; worker < MAX_WORKERS; worker++ {
 		go scanWorker(host, jobpipe, respipe, scanner_type, ipVer)
