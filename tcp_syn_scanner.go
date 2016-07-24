@@ -23,6 +23,7 @@ func NewTcpSynScanner(host string, port uint64, ipver bool) Scanner {
 		proto = "ip4:tcp"
 		addr = net.IPv4zero.String()
 	}
+	fmt.Printf("%v %v\n", proto, addr)
 	conn, err := net.ListenPacket(proto, addr)
 	if err != nil {
 		panic(err)
