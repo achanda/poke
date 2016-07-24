@@ -25,3 +25,11 @@ func GetLocalIP(dst string) (net.IP, int, error) {
 	}
 	return net.IP{}, -1, err
 }
+
+func IsIPv4(host string) bool {
+	ip := net.ParseIP(host)
+	if ip != nil {
+		return ip.To4() != nil
+	}
+	return false
+}

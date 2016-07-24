@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/achanda/go-services"
 	"github.com/achanda/poke"
+	"github.com/achanda/poke/utils"
 	"log"
 	"os"
 	"strconv"
@@ -43,12 +44,15 @@ func main() {
 		log.Fatal(err)
 	}
 
+	// For now we assume anything not v4 is v6
+	ipVer := utils.IsIPv4(host)
+
 	portmap, err := services.GetServices()
 	if err != nil {
 		fmt.Printf("did not find a services file")
 	}
 	// Format results
-	results := ScanPorts(host, prs, scanner_type)
+	results := ScanPorts(host, prs, scanner_type, ipVer)
 	//fmt.Printf("%v", results)
 	for port, success := range results {
 		if success {
@@ -84,7 +88,7 @@ func parsePorts(ranges_str string) (*poke.PortRange, error) {
 
 // Run the scan with a worker pool; memory usage grows in proportion
 // with number of ports scanned to prevent deadlock from blocking channels
-func ScanPorts(host string, pr *poke.PortRange, scanner_type string) map[uint64]bool {
+func ScanPorts(host string, pr *poke.PortRange, scanner_type string, ipVer bool) map[uint64]bool {
 	num_ports := pr.End - pr.Start + 1
 	results := make(map[uint64]bool)
 	jobpipe := make(chan uint64, num_ports)
@@ -92,7 +96,7 @@ func ScanPorts(host string, pr *poke.PortRange, scanner_type string) map[uint64]
 
 	// Start workers
 	for worker := 0; worker < MAX_WORKERS; worker++ {
-		go scanWorker(host, jobpipe, respipe, scanner_type)
+		go scanWorker(host, jobpipe, respipe, scanner_type, ipVer)
 	}
 
 	// Seed w/ jobs
@@ -112,14 +116,14 @@ func ScanPorts(host string, pr *poke.PortRange, scanner_type string) map[uint64]
 
 // Worker function; pull from job queue forever and return results on result
 // queue
-func scanWorker(host string, jobpipe chan uint64, respipe chan *poke.ScanResult, scanner_type string) {
+func scanWorker(host string, jobpipe chan uint64, respipe chan *poke.ScanResult, scanner_type string, ipVer bool) {
 	for job := <-jobpipe; ; job = <-jobpipe {
 		var sr poke.Scanner
 		switch scanner_type {
 		case "s":
 			sr = poke.NewTcpSynScanner(host, job)
 		case "c":
-			sr = poke.NewTcpConnectScanner(host, job)
+			sr = poke.NewTcpConnectScanner(host, job, ipVer)
 		}
 		respipe <- sr.Scan()
 	}

@@ -1,21 +1,27 @@
 package poke
 
 import (
-	"fmt"
 	"net"
+	"strconv"
 )
 
 type TcpConnectScanner struct {
 	Host string
 	Port uint64
+	Isv4 bool
 }
 
-func NewTcpConnectScanner(host string, port uint64) Scanner {
-	return TcpConnectScanner{host, port}
+func NewTcpConnectScanner(host string, port uint64, ipver bool) Scanner {
+	return TcpConnectScanner{host, port, ipver}
 }
 
 func (tcpcs TcpConnectScanner) Scan() *ScanResult {
-	conn, err := net.Dial("tcp", fmt.Sprintf("%v:%v", tcpcs.Host, tcpcs.Port))
+	var proto string
+	if tcpcs.Isv4 {
+		proto = "tcp4"
+	}
+	proto = "tcp6"
+	conn, err := net.Dial(proto, net.JoinHostPort(tcpcs.Host, strconv.FormatUint(tcpcs.Port, 10)))
 	result := ScanResult{
 		Port:    tcpcs.Port,
 		Success: err == nil,

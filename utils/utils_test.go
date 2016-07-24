@@ -25,3 +25,14 @@ func TestGetLocalIP(t *testing.T) {
 		t.Fatalf("Did not expect port to be -1")
 	}
 }
+
+func TestIsIPv4(t *testing.T) {
+	ip1 := "106.10.138.240"
+	ip2 := "2604:a880:1:20::9f9:9001"
+	if !IsIPv4(ip1) {
+		t.Fatalf("%v is a valid IPv4", ip1)
+	}
+	if IsIPv4(ip2) {
+		t.Fatalf("%v is not a valid IPv4", ip2)
+	}
+}
