@@ -69,7 +69,7 @@ func TestParseHost(t *testing.T) {
 	}
 
 	ip4, err := ParseHost(host4)
-	expected_count := int(math.Pow(2, 32-24)) - 2
+	expected_count := int(math.Pow(2, 32-24))
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
