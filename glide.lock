@@ -1,0 +1,10 @@
+hash: 98de22e17d84dc2cbad13b4af53fc075c89992406a43ef3339a0b588fc069d74
+updated: 2016-07-23T21:10:10.121821675-04:00
+imports:
+- name: github.com/achanda/go-services
+  version: b310126cef16509dd928871bc2745621fdd46b1f
+- name: github.com/google/gopacket
+  version: 93c3b4bf22d0a47ec7487a0b9843b0d8be738115
+  subpackages:
+  - layers
+testImports: []
