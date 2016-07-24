@@ -70,6 +70,9 @@ func main() {
 	}
 	for _, host := range hosts {
 		results := ScanPorts(host, prs, scanner_type, ipver)
+		if results == nil {
+			fmt.Printf("Is the host up?\n")
+		}
 		for port, success := range results {
 			if success {
 				if portmap != nil {
@@ -111,7 +114,7 @@ func ScanPorts(host string, pr *poke.PortRange, scanner_type string, ipVer bool)
 	jobpipe := make(chan uint64, num_ports)
 	respipe := make(chan *poke.ScanResult, num_ports)
 
-	fmt.Printf("Scanning %v\n", host)
+	fmt.Printf("Scanning %v...\n", host)
 	// Start workers
 	for worker := 0; worker < MAX_WORKERS; worker++ {
 		go scanWorker(host, jobpipe, respipe, scanner_type, ipVer)

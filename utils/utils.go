@@ -44,7 +44,8 @@ func getIPs(cidr string) ([]string, error) {
 		hosts = append(hosts, ip.String())
 	}
 	// Remove network and broadcast
-	return hosts[1 : len(hosts)-1], nil
+	//return hosts[1 : len(hosts)-1], nil
+	return hosts, nil
 }
 
 func ParseHost(host string) ([]string, error) {
@@ -76,4 +77,12 @@ func increment(ip net.IP) {
 			break
 		}
 	}
+}
+
+func IsHostUp(host string) bool {
+	_, err := net.DialTimeout("ip", host, time.Duration(10))
+	if err == nil {
+		return true
+	}
+	return false
 }
