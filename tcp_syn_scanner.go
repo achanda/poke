@@ -23,7 +23,7 @@ func NewTcpSynScanner(host string, port uint64, ipver bool) Scanner {
 		proto = "ip4:tcp"
 		addr = net.IPv4zero.String()
 	}
-	fmt.Printf("%v %v\n", proto, addr)
+	//fmt.Printf("%v %v\n", proto, addr)
 	conn, err := net.ListenPacket(proto, addr)
 	if err != nil {
 		panic(err)
@@ -37,11 +37,7 @@ func (tcpcs TcpSynScanner) Scan() *ScanResult {
 	if err != nil {
 		panic(err)
 	}
-	ip := &layers.IPv4{
-		SrcIP:    saddr,
-		DstIP:    dip,
-		Protocol: layers.IPProtocolTCP,
-	}
+
 	tcp := &layers.TCP{
 		SrcPort: layers.TCPPort(sport),
 		DstPort: layers.TCPPort(tcpcs.Port),
@@ -49,7 +45,21 @@ func (tcpcs TcpSynScanner) Scan() *ScanResult {
 		Seq:     1105024978,
 		Window:  14600,
 	}
-	tcp.SetNetworkLayerForChecksum(ip)
+	if tcpcs.IsIPv4 {
+		ip4 := &layers.IPv4{
+			SrcIP:    saddr,
+			DstIP:    dip,
+			Protocol: layers.IPProtocolTCP,
+		}
+		tcp.SetNetworkLayerForChecksum(ip4)
+	} else {
+		ip6 := &layers.IPv6{
+			SrcIP:      saddr,
+			DstIP:      dip,
+			NextHeader: layers.IPProtocolTCP,
+		}
+		tcp.SetNetworkLayerForChecksum(ip6)
+	}
 	buf := gopacket.NewSerializeBuffer()
 	opts := gopacket.SerializeOptions{
 		ComputeChecksums: true,
