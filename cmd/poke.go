@@ -62,14 +62,13 @@ func main() {
 		fmt.Printf("did not find a services file")
 	}
 	// Format results
-	//results := ScanPorts(hosts, prs, scanner_type, ipver)
+	results := ScanPorts(host, prs, scanner_type, ipVer)
 	proto := ""
 	if scanner_type == "c" || scanner_type == "s" {
 		proto = "tcp"
 	} else {
 		proto = "udp"
 	}
-	//fmt.Printf("%v", results)
 	for _, host := range hosts {
 		results := ScanPorts(host, prs, scanner_type, ipver)
 		for port, success := range results {
