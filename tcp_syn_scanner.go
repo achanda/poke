@@ -10,17 +10,25 @@ import (
 )
 
 type TcpSynScanner struct {
-	Host string
-	Port uint64
-	Conn net.PacketConn
+	Host   string
+	Port   uint64
+	IsIPv4 bool
+	Conn   net.PacketConn
 }
 
-func NewTcpSynScanner(host string, port uint64) Scanner {
-	conn, err := net.ListenPacket("ip4:tcp", "0.0.0.0")
+func NewTcpSynScanner(host string, port uint64, ipver bool) Scanner {
+	proto := "ip6:tcp"
+	addr := net.IPv6zero.String()
+	if ipver {
+		proto = "ip4:tcp"
+		addr = net.IPv4zero.String()
+	}
+	fmt.Printf("%v %v\n", proto, addr)
+	conn, err := net.ListenPacket(proto, addr)
 	if err != nil {
 		panic(err)
 	}
-	return TcpSynScanner{host, port, conn}
+	return TcpSynScanner{host, port, ipver, conn}
 }
 
 func (tcpcs TcpSynScanner) Scan() *ScanResult {
