@@ -31,6 +31,7 @@ func NewTcpSynScanner(host string, port uint64, ipver bool) Scanner {
 }
 
 func (tcpcs TcpSynScanner) Scan() *ScanResult {
+	defer tcpcs.Conn.Close()
 	dip := net.ParseIP(tcpcs.Host)
 	saddr, sport, err := utils.GetLocalIP(tcpcs.Host)
 	if err != nil {
