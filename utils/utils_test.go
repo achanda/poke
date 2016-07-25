@@ -27,6 +27,24 @@ func TestGetLocalIP(t *testing.T) {
 	}
 }
 
+func TestGetLocalIPInvalid(t *testing.T) {
+	_, port, err := GetLocalIP("1234.2.3.4")
+	if err == nil {
+		t.Fatalf("Expected error")
+	}
+	if port != -1 {
+		t.Fatalf("Expected to get back -1, got %v", port)
+	}
+
+	_, port1, err1 := GetLocalIP("blahblahblah")
+	if err1 == nil {
+		t.Fatalf("Expected error")
+	}
+	if port1 != -1 {
+		t.Fatalf("Expected to get back -1, got %v", port1)
+	}
+}
+
 func TestIsIPv4(t *testing.T) {
 	ip1 := "106.10.138.240"
 	ip2 := "2604:a880:1:20::9f9:9001"

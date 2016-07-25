@@ -17,7 +17,7 @@ vet:
 	@go vet `glide nv`
 
 test:
-	@go test -v -race `glide nv`
+	@go test -cover -v -race `glide nv`
 
 update:
 	@go get -u github.com/Masterminds/glide
