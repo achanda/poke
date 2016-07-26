@@ -21,7 +21,7 @@ func main() {
 	var ipver bool
 	flag.StringVar(&host, "host", "", "host to scan")
 	flag.StringVar(&port_range_arg, "ports", "", "ports to scan")
-	flag.StringVar(&scanner_type, "scanner", "", "scanner type to use")
+	flag.StringVar(&scanner_type, "scanner", "c", "scanner type to use")
 	flag.BoolVar(&ipver, "v4", true, "will we use IPv4")
 
 	flag.Usage = func() {
@@ -32,7 +32,7 @@ func main() {
 	flag.Parse()
 
 	scanner_type = strings.ToLower(scanner_type)
-	if scanner_type == "" || !(scanner_type == "s" || scanner_type == "c" || scanner_type == "u") {
+	if !(scanner_type == "s" || scanner_type == "c" || scanner_type == "u") {
 		fmt.Printf("unknown scanner type, defaulting to connect scan\n")
 		scanner_type = "c"
 	}
