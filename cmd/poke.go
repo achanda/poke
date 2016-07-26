@@ -15,11 +15,13 @@ import (
 // Need worker pool because running 1 goroutine per port exhausts file descriptors
 const MAX_WORKERS = 100
 
+const hostmsg = "Host parameter can be a valid IP address (v4 or v6), a hostname or a valid CIDR"
+
 // Run the port scanner
 func main() {
 	var host, port_range_arg, scanner_type string
 	var ipver bool
-	flag.StringVar(&host, "host", "", "host to scan")
+	flag.StringVar(&host, "host", "", hostmsg)
 	flag.StringVar(&port_range_arg, "ports", "", "ports to scan")
 	flag.StringVar(&scanner_type, "scanner", "c", "scanner type to use")
 	flag.BoolVar(&ipver, "v4", true, "will we use IPv4")
