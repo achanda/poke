@@ -60,3 +60,12 @@ Scanning 2604:a880:1:20::9f9:9001...
 22/tcp open ssh
 80/tcp open http
 ```
+## Developing ##
+This uses glide to manage packages. The `update` makefile target installs and gets all dependencies if they are not present. Tests can be run by:
+```
+make test
+```
+Building
+```
+make build
+```
