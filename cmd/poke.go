@@ -32,7 +32,7 @@ func main() {
 	flag.Parse()
 
 	scanner_type = strings.ToLower(scanner_type)
-	if scanner_type == "" {
+	if scanner_type == "" || !(scanner_type == "s" || scanner_type == "c" || scanner_type == "u") {
 		fmt.Printf("unknown scanner type, defaulting to connect scan\n")
 		scanner_type = "c"
 	}
@@ -145,6 +145,9 @@ func scanWorker(host string, jobpipe chan uint64, respipe chan *poke.ScanResult,
 			sr = poke.NewTcpSynScanner(host, job, ipVer)
 		case "c":
 			sr = poke.NewTcpConnectScanner(host, job, ipVer)
+		case "u":
+			fmt.Printf("The UDP scanner is not fully implemented yet\n")
+			sr = poke.NewUdpScanner(host, job, ipVer)
 		}
 		respipe <- sr.Scan()
 	}
