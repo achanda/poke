@@ -4,6 +4,8 @@ import (
 	"testing"
 )
 
+// Assumes we are running IPv6
+
 func TestUdpScannerv4(t *testing.T) {
 	for i := 1; i < 100; i++ {
 		scr4 := NewUdpScanner("127.0.0.1", uint64(i), true)

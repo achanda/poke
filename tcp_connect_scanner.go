@@ -1,5 +1,7 @@
 package poke
 
+// This file implements a simple TCP connect scanner
+
 import (
 	"net"
 	"strconv"

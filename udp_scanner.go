@@ -1,5 +1,8 @@
 package poke
 
+// Implements a UDP scanner
+// This implementation is not complete
+
 import (
 	"fmt"
 	"github.com/achanda/poke/utils"
@@ -78,9 +81,12 @@ func (us UdpScanner) Scan() *ScanResult {
 		if err != nil {
 			return &ScanResult{}
 		}
+		// Check if this packet was for us
 		if addr.String() == dip.String() {
 			packet := gopacket.NewPacket(buf2[:n], layers.LayerTypeUDP, gopacket.Default)
 			if udp := packet.Layer(layers.LayerTypeUDP); udp != nil {
+				// This check is not correct. For UDP, we should send specific payloads
+				// for services
 				return &ScanResult{Port: us.Port, Success: true, Err: nil}
 			}
 		}

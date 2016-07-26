@@ -1,5 +1,7 @@
 package poke
 
+// This implements a syn scanner for TCP
+
 import (
 	"fmt"
 	"github.com/achanda/poke/utils"
@@ -82,11 +84,15 @@ func (tcpcs TcpSynScanner) Scan() *ScanResult {
 		if err != nil {
 			return &ScanResult{}
 		}
+		// Check if this packet was for us
 		if addr.String() == dip.String() {
 			packet := gopacket.NewPacket(buf[:n], layers.LayerTypeTCP, gopacket.Default)
 			if tcpLayer := packet.Layer(layers.LayerTypeTCP); tcpLayer != nil {
 				tcp, _ := tcpLayer.(*layers.TCP)
+				// Check if this packet was for this port
 				if tcp.DstPort == layers.TCPPort(sport) {
+					// Maybe we should check SYN and ACK here
+					// This check ignores the case where firewalls might send back a RST
 					return &ScanResult{Port: tcpcs.Port, Success: !tcp.RST, Err: nil}
 				}
 			}

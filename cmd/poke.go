@@ -41,7 +41,7 @@ func main() {
 
 	if host == "" || port_range_arg == "" {
 		flag.Usage()
-		os.Exit(1)
+		os.Exit(2)
 	}
 
 	hosts, err := utils.ParseHost(host)
@@ -50,6 +50,8 @@ func main() {
 		os.Exit(2)
 	}
 
+	// If we have only one host, try to guess the IP version
+	// Assume anything that is not IPv4 is IPv6
 	if len(hosts) == 1 {
 		ipver = utils.IsIPv4(hosts[0])
 	}
@@ -70,6 +72,7 @@ func main() {
 	} else {
 		proto = "udp"
 	}
+
 	for _, host := range hosts {
 		results := ScanPorts(host, prs, scanner_type, ipver)
 		if results == nil {
@@ -90,6 +93,7 @@ func main() {
 	}
 }
 
+// Parses the port param and returns a PortRange
 func parsePorts(ranges_str string) (*poke.PortRange, error) {
 	parts := strings.Split(ranges_str, ":")
 	if len(parts) != 2 {
