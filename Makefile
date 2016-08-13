@@ -6,7 +6,7 @@ CMD_PACKAGE=$(shell glide nv | grep cmd)
 install:
 	@go get -t -v $(glide nv)
 
-build: 	vet test
+build: 	update vet test
 	@go build -v -o ./bin/$(BIN_NAME) $(CMD_PACKAGE)
 	@chmod +x ./bin/$(BIN_NAME)
 
